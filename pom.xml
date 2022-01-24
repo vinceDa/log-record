@@ -7,6 +7,7 @@
         <module>log-aop</module>
         <module>log-parser</module>
         <module>log-starter</module>
+        <module>log-persistence</module>
     </modules>
     <groupId>com.ohyoung</groupId>
     <artifactId>log-record</artifactId>
@@ -20,8 +21,20 @@
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>2.6.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-aop</artifactId>
                 <version>2.6.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>5.3.8</version>
             </dependency>
 
             <dependency>
@@ -39,6 +52,12 @@
             <dependency>
                 <groupId>com.ohyoung</groupId>
                 <artifactId>log-parser</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ohyoung</groupId>
+                <artifactId>log-persistence</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 

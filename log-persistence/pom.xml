@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>log-starter</artifactId>
+    <artifactId>log-persistence</artifactId>
 
-    <name>log-starter</name>
+    <name>log-persistence</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,32 +19,6 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ohyoung</groupId>
-            <artifactId>log-aop</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ohyoung</groupId>
-            <artifactId>log-parser</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ohyoung</groupId>
-            <artifactId>log-persistence</artifactId>
-        </dependency>
-    </dependencies>
 
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
