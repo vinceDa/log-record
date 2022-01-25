@@ -1,4 +1,4 @@
-package com.ohyoung.config;
+package com.ohyoung;
 
 import java.lang.annotation.*;
 
@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface LogRecordAnnotation {
+public @interface LogRecord {
     /**
      * 操作日志的文本模板, 必填
      */

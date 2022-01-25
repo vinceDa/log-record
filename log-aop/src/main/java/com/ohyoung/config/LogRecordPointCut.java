@@ -1,6 +1,7 @@
 package com.ohyoung.config;
 
 import com.ohyoung.LogRecordOperationSource;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 
 import java.io.Serializable;
