@@ -8,12 +8,12 @@ public enum LogResourceEnum {
 
     CUSTOMER_PROTOCOL_JOIN(1, "客户服务-客户入住协议-业主入伙");
 
-    private String text;
+    private Integer code;
 
-    private Integer value;
+    private String desc;
 
-    LogResourceEnum(Integer value, String text) {
-        this.text = text;
-        this.value = value;
+    LogResourceEnum(Integer code, String desc) {
+        this.desc = desc;
+        this.code = code;
     }
 }
