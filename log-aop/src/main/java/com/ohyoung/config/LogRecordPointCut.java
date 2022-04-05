@@ -1,8 +1,8 @@
 package com.ohyoung.config;
 
 import com.ohyoung.LogRecordOperationSource;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -21,7 +21,7 @@ public class LogRecordPointCut extends StaticMethodMatcherPointcut implements Se
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
         // 解析 这个 method 上有没有 @LogRecordAnnotation 注解，有的话会解析出来注解上的各个参数
-        return false;
+        return !CollectionUtils.isEmpty(logRecordOperationSource.computeLogRecordOperations(method, targetClass));
     }
 
     void setLogRecordOperationSource(LogRecordOperationSource logRecordOperationSource) {

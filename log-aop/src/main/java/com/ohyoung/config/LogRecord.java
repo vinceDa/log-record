@@ -7,19 +7,15 @@ import java.lang.annotation.*;
  * @author ouyb01
  * @date 2022/1/10 11:37
  */
-@Repeatable(LogRecords.class)
-@Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
 public @interface LogRecord {
     /**
      * 操作日志的文本模板, 必填
      */
-    String success();
-
-    /**
-     * 操作日志失败的文本模板
-     */
-    String fail() default "";
+    String content();
 
     /**
      * 操作日志的执行人
@@ -39,7 +35,7 @@ public @interface LogRecord {
     /**
      * 扩展参数, 记录操作日志的修改详情
      */
-    String detail() default "";
+    String remark() default "";
 
     /**
      * 记录日志的条件

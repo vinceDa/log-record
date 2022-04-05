@@ -14,9 +14,9 @@ public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
     public LogRecordEvaluationContext(Object rootObject, Method method, Object[] arguments,
                                       ParameterNameDiscoverer parameterNameDiscoverer, Object ret, String errorMsg) {
-        //把方法的参数都放到 SpEL 解析的 RootObject 中
+        // 把方法的参数都放到 SpEL 解析的 RootObject 中
         super(rootObject, method, arguments, parameterNameDiscoverer);
-        //把 LogRecordContext 中的变量都放到 RootObject 中
+        // 把 LogRecordContext 中的变量都放到 RootObject 中
         Map<String, Object> variables = LogRecordContext.getVariables();
         if (variables != null && variables.size() > 0) {
             for (Map.Entry<String, Object> entry : variables.entrySet()) {
