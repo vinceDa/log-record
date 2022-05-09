@@ -1,11 +1,27 @@
 package com.ohyoung;
 
+import java.lang.reflect.Method;
+
 /**
- * 日志操作实体, 记录需要记录的日志信息
+ * 日志操作实体, 记录被@LogRecord标注的方法信息
+ * Method method,  Object[] args, Class<?> targetClass, Object ret, String errorMsg, BeanFactory beanFactory
  * @author ohYoung
  * @date 2022/4/4 21:29
  */
 public class LogRecordOperation {
+    /**
+     * 被@LogRecord标注的方法
+     */
+    private Method method;
+    /**
+     * 方法对应的入参
+     */
+    private Object[] args;
+    /**
+     * 目标class
+     */
+    private Class<?> targetClass;
+
     /**
      * 操作日志的文本模板, 必填
      */
@@ -40,6 +56,30 @@ public class LogRecordOperation {
      * 记录日志的条件
      */
     private String condition;
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public void setMethod(Method method) {
+        this.method = method;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
+
+    public void setArgs(Object[] args) {
+        this.args = args;
+    }
+
+    public Class<?> getTargetClass() {
+        return targetClass;
+    }
+
+    public void setTargetClass(Class<?> targetClass) {
+        this.targetClass = targetClass;
+    }
 
     public String getSuccess() {
         return success;

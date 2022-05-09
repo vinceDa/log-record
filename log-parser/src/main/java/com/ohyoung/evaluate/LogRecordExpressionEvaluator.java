@@ -1,8 +1,12 @@
 package com.ohyoung.evaluate;
 
+import com.ohyoung.context.ExpressionRootObject;
+import com.ohyoung.context.LogRecordEvaluationContext;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.context.expression.CachedExpressionEvaluator;
+import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 
@@ -32,7 +36,19 @@ public class LogRecordExpressionEvaluator extends CachedExpressionEvaluator {
     }
 
     public EvaluationContext createEvaluationContext(Method method, Object[] args, Class<?> targetClass, Object ret, String errorMsg, BeanFactory beanFactory) {
-        return null;
+        Method targetMethod = getTargetMethod(targetClass, method);
+        ExpressionRootObject rootObject = new ExpressionRootObject(method.getParameters(), args);
+        return new LogRecordEvaluationContext(rootObject, targetMethod, args, getParameterNameDiscoverer(), ret, errorMsg);
+    }
+
+    private Method getTargetMethod(Class targetClass, Method method) {
+        AnnotatedElementKey methodKey = new AnnotatedElementKey(method, targetClass);
+        Method targetMethod = this.targetMethodCache.get(methodKey);
+        if (targetMethod == null) {
+            targetMethod = AopUtils.getMostSpecificMethod(method, targetClass);
+            this.targetMethodCache.put(methodKey, targetMethod);
+        }
+        return targetMethod;
     }
 
 }

@@ -1,9 +1,7 @@
 package com.ohyoung;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 注解解析类
@@ -24,8 +22,9 @@ public class LogRecordOperationSource {
                     declaredMethod.setAccessible(true);
                     // 获取方法上的注解
                     LogRecord logRecord = declaredMethod.getAnnotation(LogRecord.class);
+
                     if (Objects.isNull(logRecord)) {
-                        return null;
+                        return new ArrayList<>();
                     }
                     // 解析注解上对应的信息
                     operations.add(parseAnnotation(logRecord));
