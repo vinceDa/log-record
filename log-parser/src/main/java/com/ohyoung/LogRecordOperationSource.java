@@ -1,6 +1,8 @@
 package com.ohyoung;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -22,9 +24,12 @@ public class LogRecordOperationSource {
                     declaredMethod.setAccessible(true);
                     // 获取方法上的注解
                     LogRecord logRecord = declaredMethod.getAnnotation(LogRecord.class);
-
                     if (Objects.isNull(logRecord)) {
                         return new ArrayList<>();
+                    }
+                    Field[] fields = targetClass.getFields();
+                    for (Field field : fields) {
+
                     }
                     // 解析注解上对应的信息
                     operations.add(parseAnnotation(logRecord));

@@ -1,5 +1,7 @@
 package com.ohyoung.function;
 
+import java.util.Objects;
+
 /**
  * 根据传入的函数名称 functionName 找到对应的 IParseFunction，
  * 然后把参数传入到 IParseFunction 的 apply 方法上最后返回函数的值
@@ -17,7 +19,7 @@ public class DefaultFunctionServiceImpl implements IFunctionService{
     @Override
     public String apply(String functionName, String value) {
         IParseFunction function = parseFunctionFactory.getFunction(functionName);
-        if (function == null) {
+        if (Objects.isNull(function)) {
             return null;
         }
         return function.apply(value);

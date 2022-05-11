@@ -6,6 +6,7 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author ouyb01
@@ -32,7 +33,7 @@ public class ParseFunctionFactory {
     }
 
     public boolean isBeforeFunction(String functionName) {
-        return allFunctionMap.get(functionName) != null && allFunctionMap.get(functionName).executeBefore();
+        return Objects.nonNull(allFunctionMap.get(functionName)) && allFunctionMap.get(functionName).executeBefore();
     }
 
 }
