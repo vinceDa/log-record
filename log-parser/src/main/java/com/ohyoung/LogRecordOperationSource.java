@@ -1,15 +1,19 @@
 package com.ohyoung;
 
+import org.springframework.stereotype.Component;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 注解解析类
  * @author ouyb01
  * @date 2022/1/11 9:36
  */
+@Component
 public class LogRecordOperationSource {
 
     public List<LogRecordOperation> computeLogRecordOperations(Method method, Class<?> targetClass) {
@@ -27,12 +31,13 @@ public class LogRecordOperationSource {
                     if (Objects.isNull(logRecord)) {
                         return new ArrayList<>();
                     }
+
                     Field[] fields = targetClass.getFields();
                     for (Field field : fields) {
 
                     }
                     // 解析注解上对应的信息
-                    operations.add(parseAnnotation(logRecord));
+                    operations.add(parseAnnotation(logRecord, method, targetClass));
                 }
                 return operations;
             }
@@ -42,8 +47,11 @@ public class LogRecordOperationSource {
         return null;
     }
 
-    private LogRecordOperation parseAnnotation(LogRecord logRecord) {
+    private LogRecordOperation parseAnnotation(LogRecord logRecord, Method method, Class<?> targetClass) {
         LogRecordOperation operation = new LogRecordOperation();
+        operation.setMethod(method);
+        operation.setTargetClass(targetClass);
+        operation.setArgs(method.getParameters());
         operation.setBizNo(logRecord.bizNo());
         operation.setSuccess(logRecord.success());
         operation.setCategory(logRecord.category());

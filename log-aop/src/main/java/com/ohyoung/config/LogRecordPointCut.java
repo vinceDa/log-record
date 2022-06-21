@@ -2,6 +2,7 @@ package com.ohyoung.config;
 
 import com.ohyoung.LogRecordOperationSource;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import java.lang.reflect.Method;
  */
 public class LogRecordPointCut extends StaticMethodMatcherPointcut implements Serializable {
 
+    @Autowired
     private LogRecordOperationSource logRecordOperationSource;
 
     @Override

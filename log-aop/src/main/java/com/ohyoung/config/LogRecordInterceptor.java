@@ -29,6 +29,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
     @Autowired
     private LogRecordValueParser logRecordValueParser;
 
+    @Autowired
     private LogRecordOperationSource logRecordOperationSource;
 
     private IFunctionService functionService;
@@ -49,7 +50,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
     private Object execute(MethodInvocation invoker, Object target, Method method, Object[] args) throws Throwable {
         Class<?> targetClass = getTargetClass(target);
         Object ret = null;
-        MethodExecuteResult methodExecuteResult = new MethodExecuteResult(true, null, "");
+        MethodExecuteResult methodExecuteResult = new MethodExecuteResult();
 //        LogRecordContext.putEmptySpan();
         Collection<LogRecordOperation> operations = new ArrayList<>();
         Map<String, String> functionNameAndReturnMap = new HashMap<>();
@@ -59,6 +60,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
             // 业务逻辑执行前的自定义函数解析
             functionNameAndReturnMap = processBeforeExecuteFunctionTemplate(spElTemplates, targetClass, method, args);
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("log record parse before function exception", e);
         }
         try {
@@ -83,7 +85,8 @@ public class LogRecordInterceptor implements MethodInterceptor {
         return ret;
     }
 
-    private void recordExecute(Object ret, Method method, Object[] args, Collection<LogRecordOperation> operations, Class<?> targetClass, boolean success, String errorMsg, Map<String, String> functionNameAndReturnMap) {
+    private void recordExecute(Object ret, Method method, Object[] args, Collection<LogRecordOperation> operations,
+                               Class<?> targetClass, boolean success, String errorMsg, Map<String, String> functionNameAndReturnMap) {
 
     }
 
@@ -112,7 +115,6 @@ public class LogRecordInterceptor implements MethodInterceptor {
             String success = operation.getSuccess();
             // 不包含{{和}}则表示没有spEL表达式, 不需要解析
             if (!success.contains("{{") || !success.contains("}}") ) {
-                sqELTemplates.add(success);
                 continue;
             }
             sqELTemplates.add(logRecordValueParser.parse(operation));

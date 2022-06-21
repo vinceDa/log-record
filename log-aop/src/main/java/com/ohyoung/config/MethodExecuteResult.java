@@ -12,6 +12,11 @@ public class MethodExecuteResult {
 
     private String errorMsg;
 
+    public MethodExecuteResult() {
+        this.success = Boolean.TRUE;
+        this.throwable = null;
+        this.errorMsg = "";
+    }
     public MethodExecuteResult(boolean success, Exception throwable, String errMsg) {
         this.success = success;
         this.throwable = throwable;

@@ -9,6 +9,7 @@ import org.springframework.context.expression.CachedExpressionEvaluator;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ouyb01
  * @date 2022/1/24 17:26
  */
+@Component
 public class LogRecordExpressionEvaluator extends CachedExpressionEvaluator {
 
     /**
@@ -35,7 +37,7 @@ public class LogRecordExpressionEvaluator extends CachedExpressionEvaluator {
         return getExpression(this.expressionCache, methodKey, conditionExpression).getValue(evalContext, String.class);
     }
 
-    public EvaluationContext createEvaluationContext(Method method, Object[] args, Class<?> targetClass, Object ret, String errorMsg, BeanFactory beanFactory) {
+    public EvaluationContext createEvaluationContext(Method method, Object[] args, Class<?> targetClass, Object ret, String errorMsg) {
         Method targetMethod = getTargetMethod(targetClass, method);
         ExpressionRootObject rootObject = new ExpressionRootObject(method.getParameters(), args);
         return new LogRecordEvaluationContext(rootObject, targetMethod, args, getParameterNameDiscoverer(), ret, errorMsg);

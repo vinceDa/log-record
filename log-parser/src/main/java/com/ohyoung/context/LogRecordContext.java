@@ -10,17 +10,55 @@ import java.util.Stack;
  */
 public class LogRecordContext {
 
-    private static final InheritableThreadLocal<Stack<Map<String, Object>>> variableMapStack = new InheritableThreadLocal<>();
+    /**
+     * 具备继承特性线程局部变量，子线程继承父线程的线程局部变量
+     */
+    private static final InheritableThreadLocal<Stack<Map<String, Object>>> VARIABLE_MAP_STACK;
+
+    static {
+        VARIABLE_MAP_STACK = new InheritableThreadLocal<Stack<Map<String, Object>>>() {
+            @Override
+            protected Stack<Map<String, Object>> initialValue() {
+                return new Stack<>();
+            }
+
+            @Override
+            protected Stack<Map<String, Object>> childValue(Stack<Map<String, Object>> parentValue) {
+                Stack<Map<String, Object>> copiedStack = new Stack<>();
+                // 仅共享父线程方法上下文中的变量
+                if (!parentValue.isEmpty()) {
+                    copiedStack.push(parentValue.peek());
+                }
+                return copiedStack;
+            }
+        };
+    }
+
+    /**
+     * 入栈一个 map。在 @LogRecord 嵌套使用时，即将入栈的 map 包含栈顶 map 的数据。
+     */
+    public static void putSpan() {
+        if (VARIABLE_MAP_STACK.get().isEmpty()) {
+            VARIABLE_MAP_STACK.get().push(new HashMap<>());
+        } else {
+            // 内层方法共享外层方法 Context Variables
+            Map<String, Object> copiedMap = new HashMap<>(VARIABLE_MAP_STACK.get().peek());
+            VARIABLE_MAP_STACK.get().push(copiedMap);
+        }
+    }
 
     public static void setVariables(Map<String, Object> variables) {
-        variableMapStack.get().push(variables);
+        VARIABLE_MAP_STACK.get().push(variables);
     }
 
     public static Map<String, Object> getVariables() {
-        return variableMapStack.get().pop();
+        if (VARIABLE_MAP_STACK.get().isEmpty()) {
+            VARIABLE_MAP_STACK.get().push(new HashMap<>());
+        }
+        return VARIABLE_MAP_STACK.get().pop();
     }
 
     public static void clear() {
-        variableMapStack.remove();
+        VARIABLE_MAP_STACK.remove();
     }
 }
