@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @GetMapping("/getOne")
-    @LogRecord(success = "{{id}}", fail = "{{name}}", bizNo = "bizNo2222")
+    @LogRecord(success = "这是个{#id}", fail = "{#name}", bizNo = "bizNo2222")
     public String getOne(Long id, String name) {
         return "1234";
     }

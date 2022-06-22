@@ -4,6 +4,7 @@ package com.ohyoung.config;
 import com.ohyoung.LogRecordOperation;
 import com.ohyoung.LogRecordOperationSource;
 import com.ohyoung.context.LogRecordContext;
+import com.ohyoung.context.LogRecordEvaluationContext;
 import com.ohyoung.evaluate.LogRecordValueParser;
 import com.ohyoung.function.IFunctionService;
 import com.ohyoung.service.ILogRecordService;
@@ -12,6 +13,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.expression.AnnotatedElementKey;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Method;
@@ -54,9 +57,12 @@ public class LogRecordInterceptor implements MethodInterceptor {
 //        LogRecordContext.putEmptySpan();
         Collection<LogRecordOperation> operations = new ArrayList<>();
         Map<String, String> functionNameAndReturnMap = new HashMap<>();
+        AnnotatedElementKey targetMethodKey = new AnnotatedElementKey(method, targetClass);
+        LogRecordEvaluationContext evaluationContext = new LogRecordEvaluationContext(null, method, args, new DefaultParameterNameDiscoverer());
+        logRecordValueParser.setLogRecordEvaluationContext(evaluationContext);
         try {
-            operations = logRecordOperationSource.computeLogRecordOperations(method, targetClass);
-            List<String> spElTemplates = getBeforeExecuteFunctionTemplate(operations);
+            operations = logRecordOperationSource.computeLogRecordOperations(method, targetClass, args);
+            List<String> spElTemplates = getBeforeExecuteFunctionTemplate(operations, targetMethodKey);
             // 业务逻辑执行前的自定义函数解析
             functionNameAndReturnMap = processBeforeExecuteFunctionTemplate(spElTemplates, targetClass, method, args);
         } catch (Exception e) {
@@ -105,19 +111,21 @@ public class LogRecordInterceptor implements MethodInterceptor {
 
     /**
      * 在方法执行之前获取模板
-     * @LogRecord(content = "修改了订单的配送员：从“{queryOldUser{#request.deliveryOrderNo()}}”, 修改到“{deliveryUser{#request.userId}}”"
+     *
      * @param operations
+     * @param methodKey
      * @return
+     * @LogRecord(content = "修改了订单的配送员：从“{queryOldUser{#request.deliveryOrderNo()}}”, 修改到“{deliveryUser{#request.userId}}”"
      */
-    private List<String> getBeforeExecuteFunctionTemplate(Collection<LogRecordOperation> operations) {
+    private List<String> getBeforeExecuteFunctionTemplate(Collection<LogRecordOperation> operations, AnnotatedElementKey methodKey) {
         List<String> sqELTemplates = new ArrayList<>(operations.size());
         for (LogRecordOperation operation : operations) {
-            String success = operation.getSuccess();
-            // 不包含{{和}}则表示没有spEL表达式, 不需要解析
-            if (!success.contains("{{") || !success.contains("}}") ) {
+            String expression = operation.getValue();
+            // 不包含{和}则表示没有spEL表达式, 不需要解析
+            if (!expression.contains("{") || !expression.contains("}") ) {
                 continue;
             }
-            sqELTemplates.add(logRecordValueParser.parse(operation));
+            sqELTemplates.add(logRecordValueParser.parse(operation.getValue(), methodKey));
         }
         return sqELTemplates;
     }

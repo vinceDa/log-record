@@ -23,7 +23,7 @@ public class LogRecordPointCut extends StaticMethodMatcherPointcut implements Se
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
         // 解析 这个 method 上有没有 @LogRecordAnnotation 注解，有的话会解析出来注解上的各个参数
-        return !CollectionUtils.isEmpty(logRecordOperationSource.computeLogRecordOperations(method, targetClass));
+        return logRecordOperationSource.isLogRecordAnnotationExist(targetClass);
     }
 
     void setLogRecordOperationSource(LogRecordOperationSource logRecordOperationSource) {

@@ -1,9 +1,8 @@
 package com.ohyoung.evaluate;
 
-import com.ohyoung.LogRecordOperation;
+import com.ohyoung.context.LogRecordEvaluationContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.expression.AnnotatedElementKey;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,13 +12,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogRecordValueParser {
 
+    private LogRecordEvaluationContext logRecordEvaluationContext;
     @Autowired
     private LogRecordExpressionEvaluator expressionEvaluator;
 
-    public String parse(LogRecordOperation logRecordOperation) {
-        EvaluationContext evaluationContext = expressionEvaluator.createEvaluationContext(logRecordOperation.getMethod(), logRecordOperation.getArgs(),
-                logRecordOperation.getTargetClass(), null, null);
-        AnnotatedElementKey methodKey = new AnnotatedElementKey(logRecordOperation.getMethod(), logRecordOperation.getTargetClass());
-        return expressionEvaluator.parseExpression(logRecordOperation.getSuccess(), methodKey, evaluationContext);
+    public String parse(String expression, AnnotatedElementKey methodKey) {
+        return expressionEvaluator.parseExpression(expression, methodKey, logRecordEvaluationContext);
     }
+
+
+    public void setLogRecordEvaluationContext(LogRecordEvaluationContext logRecordEvaluationContext) {
+        this.logRecordEvaluationContext = logRecordEvaluationContext;
+    }
+
 }

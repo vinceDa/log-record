@@ -13,18 +13,35 @@ import java.util.Map;
 public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
     public LogRecordEvaluationContext(Object rootObject, Method method, Object[] arguments,
-                                      ParameterNameDiscoverer parameterNameDiscoverer, Object ret, String errorMsg) {
+                                      ParameterNameDiscoverer parameterNameDiscoverer) {
         // 把方法的参数都放到 SpEL 解析的 RootObject 中
         super(rootObject, method, arguments, parameterNameDiscoverer);
-        // 把 LogRecordContext 中的变量都放到 RootObject 中
+    }
+
+    /**
+     * 把 LogRecordContext 中的变量都放到 RootObject 中 <p>
+     * LogRecord标注的方法执行后，上下文中才可能存在值
+     */
+    public void setContextVariables(){
         Map<String, Object> variables = LogRecordContext.getVariables();
-        if (variables != null && variables.size() > 0) {
-            for (Map.Entry<String, Object> entry : variables.entrySet()) {
-                setVariable(entry.getKey(), entry.getValue());
-            }
+        for (Map.Entry<String, Object> entry : variables.entrySet()) {
+            setVariable(entry.getKey(), entry.getValue());
         }
-        //把方法的返回值和 ErrorMsg 都放到 RootObject 中
-        setVariable("_ret", ret);
-        setVariable("_errorMsg", errorMsg);
+    }
+
+    /**
+     * 把方法的返回值和 errMsg 都放到 RootObject 中
+     * LogRecord标注的方法执行后，上下文中才可能存在返回值和错误信息
+     *
+     * @param ret       返回值
+     * @param errMsg    错误信息
+     */
+    public void setRetAndErrMsg(Object ret, String errMsg) {
+        if(ret != null){
+            setVariable("_ret", ret);
+        }
+        if(errMsg != null){
+            setVariable("_errMsg", errMsg);
+        }
     }
 }

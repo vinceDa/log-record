@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,11 +17,22 @@ import java.util.Objects;
 @Component
 public class LogRecordOperationSource {
 
-    public List<LogRecordOperation> computeLogRecordOperations(Method method, Class<?> targetClass) {
+    public boolean isLogRecordAnnotationExist(Class<?> targetClass) {
+        // 获取@LogRecord中的方法
+        Method[] declaredMethods = targetClass.getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            if (declaredMethod.isAnnotationPresent(LogRecord.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<LogRecordOperation> computeLogRecordOperations(Method method, Class<?> targetClass, Object[] args) {
         try {
             // 获取@LogRecord中的方法
             Method[] declaredMethods = targetClass.getDeclaredMethods();
-            List<LogRecordOperation> operations = new ArrayList<>(declaredMethods.length);
+            List<LogRecordOperation> operations = new ArrayList<>();
             for (Method declaredMethod : declaredMethods) {
                 // 过滤掉不含@LogRecord注解的方法
                 boolean isAnnotationExist = declaredMethod.isAnnotationPresent(LogRecord.class);
@@ -31,34 +43,28 @@ public class LogRecordOperationSource {
                     if (Objects.isNull(logRecord)) {
                         return new ArrayList<>();
                     }
-
-                    Field[] fields = targetClass.getFields();
-                    for (Field field : fields) {
-
-                    }
                     // 解析注解上对应的信息
-                    operations.add(parseAnnotation(logRecord, method, targetClass));
+                    operations.addAll(parseAnnotation(logRecord, method, targetClass, args));
                 }
-                return operations;
             }
+            return operations;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
     }
 
-    private LogRecordOperation parseAnnotation(LogRecord logRecord, Method method, Class<?> targetClass) {
-        LogRecordOperation operation = new LogRecordOperation();
-        operation.setMethod(method);
-        operation.setTargetClass(targetClass);
-        operation.setArgs(method.getParameters());
-        operation.setBizNo(logRecord.bizNo());
-        operation.setSuccess(logRecord.success());
-        operation.setCategory(logRecord.category());
-        operation.setCondition(logRecord.condition());
-        operation.setDetail(logRecord.detail());
-        operation.setFail(logRecord.fail());
-        operation.setOperator(logRecord.operator());
-        return operation;
+    private List<LogRecordOperation> parseAnnotation(LogRecord logRecord, Method method, Class<?> targetClass, Object[] args) {
+        Field[] fields = logRecord.getClass().getDeclaredFields();
+        List<LogRecordOperation> operations = new ArrayList<>(fields.length);
+        // 正常操作下, 反射不能获取到参数名称, 所以这里直接写死
+        operations.add(new LogRecordOperation("success", logRecord.success()));
+        operations.add(new LogRecordOperation("fail", logRecord.fail()));
+        operations.add(new LogRecordOperation("operator", logRecord.operator()));
+        operations.add(new LogRecordOperation("bizNo", logRecord.bizNo()));
+        operations.add(new LogRecordOperation("category", logRecord.category()));
+        operations.add(new LogRecordOperation("detail", logRecord.detail()));
+        operations.add(new LogRecordOperation("condition", logRecord.condition()));
+        return operations;
     }
 }

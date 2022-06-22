@@ -9,131 +9,34 @@ import java.lang.reflect.Method;
  * @date 2022/4/4 21:29
  */
 public class LogRecordOperation {
-    /**
-     * 被@LogRecord标注的方法
-     */
-    private Method method;
-    /**
-     * 方法对应的入参
-     */
-    private Object[] args;
-    /**
-     * 目标class
-     */
-    private Class<?> targetClass;
 
     /**
-     * 操作日志的文本模板, 必填
+     * @LogRecord注解 定义的具有业务意义的key, 例如success, fail等, 这里用key、value的形式接收
      */
-    private String success;
-
+    private String key;
     /**
-     * 操作日志失败的文本模板
+     * @LogRecord注解 中的key对应的值, 目前考虑到只有String类型才会进行SPEL解析
      */
-    private String fail;
+    private String value;
 
-    /**
-     * 操作日志的执行人
-     */
-    private String operator;
-
-    /**
-     * 操作日志绑定的业务对象标识, 必填
-     */
-    private String bizNo;
-
-    /**
-     * 操作日志的种类
-     */
-    private String category;
-
-    /**
-     * 扩展参数, 记录操作日志的修改详情
-     */
-    private String detail;
-
-    /**
-     * 记录日志的条件
-     */
-    private String condition;
-
-    public Method getMethod() {
-        return method;
+    public LogRecordOperation(String key, String value) {
+        this.key = key;
+        this.value = value;
     }
 
-    public void setMethod(Method method) {
-        this.method = method;
+    public String getKey() {
+        return key;
     }
 
-    public Object[] getArgs() {
-        return args;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public void setArgs(Object[] args) {
-        this.args = args;
+    public String getValue() {
+        return value;
     }
 
-    public Class<?> getTargetClass() {
-        return targetClass;
-    }
-
-    public void setTargetClass(Class<?> targetClass) {
-        this.targetClass = targetClass;
-    }
-
-    public String getSuccess() {
-        return success;
-    }
-
-    public void setSuccess(String success) {
-        this.success = success;
-    }
-
-    public String getFail() {
-        return fail;
-    }
-
-    public void setFail(String fail) {
-        this.fail = fail;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public String getBizNo() {
-        return bizNo;
-    }
-
-    public void setBizNo(String bizNo) {
-        this.bizNo = bizNo;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public void setValue(String value) {
+        this.value = value;
     }
 }
