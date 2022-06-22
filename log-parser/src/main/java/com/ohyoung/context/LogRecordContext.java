@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
+ * 使用InheritableThreadLocal存储上下文避免嵌套注解时, 上下文的值被覆盖
  * @author ouyb01
  * @date 2022/1/24 21:18
  */
