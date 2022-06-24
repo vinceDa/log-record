@@ -4,17 +4,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * @author yanghui
+ * @author ouyb01
+ * @date 2022/6/24 14:52
  */
-@SpringBootApplication(scanBasePackages = "com.ohyoung")
-public class MyApplication {
+@SpringBootApplication
+public class LogExampleApplication {
 
     public static void main(String[] args) {
         try {
-            SpringApplication.run(MyApplication.class, args);
+            SpringApplication.run(LogExampleApplication.class, args);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

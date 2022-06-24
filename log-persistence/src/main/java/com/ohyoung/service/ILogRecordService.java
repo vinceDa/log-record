@@ -1,6 +1,6 @@
 package com.ohyoung.service;
 
-import java.util.logging.LogRecord;
+import com.ohyoung.entity.LogRecordPO;
 
 /**
  * @author ouyb01
@@ -8,6 +8,6 @@ import java.util.logging.LogRecord;
  */
 public interface ILogRecordService {
 
-    void record(LogRecord logRecord);
+    void record(LogRecordPO logRecord);
 
 }

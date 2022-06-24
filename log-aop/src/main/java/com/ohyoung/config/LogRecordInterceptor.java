@@ -1,12 +1,15 @@
 package com.ohyoung.config;
 
 
-import com.ohyoung.LogRecordOperation;
-import com.ohyoung.LogRecordOperationSource;
+import com.ohyoung.LogRecordMetaData;
+import com.ohyoung.LogRecordAnnotationParser;
 import com.ohyoung.context.LogRecordContext;
 import com.ohyoung.context.LogRecordEvaluationContext;
+import com.ohyoung.entity.LogRecordPO;
 import com.ohyoung.evaluate.LogRecordValueParser;
 import com.ohyoung.function.IFunctionService;
+import com.ohyoung.function.IParseFunction;
+import com.ohyoung.function.ParseFunctionFactory;
 import com.ohyoung.service.ILogRecordService;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -14,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.expression.AnnotatedElementKey;
-import org.springframework.core.DefaultParameterNameDiscoverer;
-import org.springframework.util.CollectionUtils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.aop.support.AopUtils.getTargetClass;
 
@@ -28,12 +31,13 @@ import static org.springframework.aop.support.AopUtils.getTargetClass;
  * @date 2022/1/24 15:12
  */
 public class LogRecordInterceptor implements MethodInterceptor {
-
     @Autowired
     private LogRecordValueParser logRecordValueParser;
 
-    @Autowired
-    private LogRecordOperationSource logRecordOperationSource;
+    private ParseFunctionFactory parseFunctionFactory;
+
+
+    private LogRecordAnnotationParser logRecordAnnotationParser;
 
     private IFunctionService functionService;
 
@@ -55,16 +59,26 @@ public class LogRecordInterceptor implements MethodInterceptor {
         Object ret = null;
         MethodExecuteResult methodExecuteResult = new MethodExecuteResult();
 //        LogRecordContext.putEmptySpan();
-        Collection<LogRecordOperation> operations = new ArrayList<>();
-        Map<String, String> functionNameAndReturnMap = new HashMap<>();
+        Collection<LogRecordMetaData> operations = new ArrayList<>();
+        List<LogRecordMetaData> executeBeforeFunctionMetaDataList = new ArrayList<>();
+        List<LogRecordMetaData> executeAfterFunctionMetaDataList = new ArrayList<>();
         AnnotatedElementKey targetMethodKey = new AnnotatedElementKey(method, targetClass);
-        LogRecordEvaluationContext evaluationContext = new LogRecordEvaluationContext(null, method, args, new DefaultParameterNameDiscoverer());
+        LogRecordEvaluationContext evaluationContext = new LogRecordEvaluationContext(method, args);
         logRecordValueParser.setLogRecordEvaluationContext(evaluationContext);
         try {
-            operations = logRecordOperationSource.computeLogRecordOperations(method, targetClass, args);
-            List<String> spElTemplates = getBeforeExecuteFunctionTemplate(operations, targetMethodKey);
+            // 解析注解将数据存入LogRecordOperation
+            operations = logRecordAnnotationParser.computeLogRecordOperations(method, targetClass, args);
+//            List<String> spElTemplates = getBeforeExecuteFunctionTemplate(operations, targetMethodKey);
             // 业务逻辑执行前的自定义函数解析
-            functionNameAndReturnMap = processBeforeExecuteFunctionTemplate(spElTemplates, targetClass, method, args);
+            executeBeforeFunctionMetaDataList = operations.stream().filter(LogRecordMetaData::getExecuteBefore).collect(Collectors.toList());
+            executeAfterFunctionMetaDataList = operations.stream().filter(o -> !o.getExecuteBefore()).collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("@LogRecord parse error", e);
+        }
+        try {
+            // 解析方法执行前的SpEL表达式
+            processFunctionTemplate(evaluationContext, executeBeforeFunctionMetaDataList, targetMethodKey);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("log record parse before function exception", e);
@@ -72,14 +86,34 @@ public class LogRecordInterceptor implements MethodInterceptor {
         try {
             ret = invoker.proceed();
         } catch (Exception e) {
+            e.printStackTrace();
+            log.error("business error", e);
             methodExecuteResult = new MethodExecuteResult(false, e, e.getMessage());
         }
         try {
-            if (!CollectionUtils.isEmpty(operations)) {
-                recordExecute(ret, method, args, operations, targetClass,
-                        methodExecuteResult.isSuccess(), methodExecuteResult.getErrorMsg(), functionNameAndReturnMap);
+            evaluationContext.setRetAndErrMsg(ret, methodExecuteResult.getErrorMsg());
+            // 解析方法执行后的SpEL表达式
+            processFunctionTemplate(evaluationContext, executeAfterFunctionMetaDataList, targetMethodKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("log record parse after function exception", e);
+        }
+        operations.clear();
+        operations.addAll(executeBeforeFunctionMetaDataList);
+        operations.addAll(executeAfterFunctionMetaDataList);
+        try {
+            LogRecordPO logRecordPO = new LogRecordPO();
+            Class<? extends LogRecordPO> logRecordPOClass = logRecordPO.getClass();
+            for (LogRecordMetaData operationMetaData : operations) {
+                Field field = logRecordPOClass.getDeclaredField(operationMetaData.getKey());
+                field.setAccessible(true);
+                field.set(logRecordPO, operationMetaData.getValue());
+            }
+            if (!"false".equals(logRecordPO.getCondition())) {
+                logRecordService.record(logRecordPO);
             }
         } catch (Exception t) {
+            t.printStackTrace();
             //记录日志错误不要影响业务
             log.error("log record parse exception", t);
         } finally {
@@ -91,47 +125,34 @@ public class LogRecordInterceptor implements MethodInterceptor {
         return ret;
     }
 
-    private void recordExecute(Object ret, Method method, Object[] args, Collection<LogRecordOperation> operations,
-                               Class<?> targetClass, boolean success, String errorMsg, Map<String, String> functionNameAndReturnMap) {
-
-    }
-
     /**
-     * 解析@LogRecord中的自定义函数
-     * @param spElTemplates
-     * @param targetClass
-     * @param method
-     * @param args
-     * @return
+     * 解析SpEL表达式并处理其中的自定义函数
+     * @param evaluationContext 上下文参数
+     * @param operations 解析@LogRecord后的元数据集合
      */
-    private Map<String, String> processBeforeExecuteFunctionTemplate(List<String> spElTemplates, Class<?> targetClass, Method method, Object[] args) {
-
-        return null;
-    }
-
-    /**
-     * 在方法执行之前获取模板
-     *
-     * @param operations
-     * @param methodKey
-     * @return
-     * @LogRecord(content = "修改了订单的配送员：从“{queryOldUser{#request.deliveryOrderNo()}}”, 修改到“{deliveryUser{#request.userId}}”"
-     */
-    private List<String> getBeforeExecuteFunctionTemplate(Collection<LogRecordOperation> operations, AnnotatedElementKey methodKey) {
-        List<String> sqELTemplates = new ArrayList<>(operations.size());
-        for (LogRecordOperation operation : operations) {
-            String expression = operation.getValue();
-            // 不包含{和}则表示没有spEL表达式, 不需要解析
-            if (!expression.contains("{") || !expression.contains("}") ) {
+    private void processFunctionTemplate(LogRecordEvaluationContext evaluationContext, Collection<LogRecordMetaData> operations, AnnotatedElementKey methodKey) {
+        // 注册自定义函数
+        operations.forEach(o -> registerCustomizeFunction(o.getFunctionNames(), evaluationContext));
+        for (LogRecordMetaData operation : operations) {
+            if (!operation.isNeedParse()) {
                 continue;
             }
-            sqELTemplates.add(logRecordValueParser.parse(operation.getValue(), methodKey));
+            operation.setValue(logRecordValueParser.parse(operation.getValue(), methodKey));
         }
-        return sqELTemplates;
     }
 
-    public void setLogRecordOperationSource(LogRecordOperationSource logRecordOperationSource) {
-        this.logRecordOperationSource = logRecordOperationSource;
+    private void registerCustomizeFunction(List<String> functionNames, LogRecordEvaluationContext evaluationContext) {
+        functionNames.forEach(functionName -> {
+            IParseFunction function = parseFunctionFactory.getFunction(functionName);
+
+            if (Objects.nonNull(function)) {
+                evaluationContext.registerFunction(functionName, function.functionMethod());
+            }
+        });
+    }
+
+    public void setLogRecordAnnotationParser(LogRecordAnnotationParser logRecordAnnotationParser) {
+        this.logRecordAnnotationParser = logRecordAnnotationParser;
     }
 
     public void setFunctionService(IFunctionService functionService) {

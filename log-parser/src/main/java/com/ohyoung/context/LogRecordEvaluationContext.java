@@ -1,7 +1,9 @@
 package com.ohyoung.context;
 
 import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.expression.TypedValue;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -12,10 +14,11 @@ import java.util.Map;
  */
 public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
-    public LogRecordEvaluationContext(Object rootObject, Method method, Object[] arguments,
-                                      ParameterNameDiscoverer parameterNameDiscoverer) {
+    private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
+
+    public LogRecordEvaluationContext(Method method, Object[] arguments) {
         // 把方法的参数都放到 SpEL 解析的 RootObject 中
-        super(rootObject, method, arguments, parameterNameDiscoverer);
+        super(TypedValue.NULL, method, arguments, PARAMETER_NAME_DISCOVERER);
     }
 
     /**

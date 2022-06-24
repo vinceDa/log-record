@@ -1,9 +1,8 @@
 package com.ohyoung.config;
 
-import com.ohyoung.LogRecordOperationSource;
+import com.ohyoung.LogRecordAnnotationParser;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -18,16 +17,16 @@ import java.lang.reflect.Method;
 public class LogRecordPointCut extends StaticMethodMatcherPointcut implements Serializable {
 
     @Autowired
-    private LogRecordOperationSource logRecordOperationSource;
+    private LogRecordAnnotationParser logRecordAnnotationParser;
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
         // 解析 这个 method 上有没有 @LogRecordAnnotation 注解，有的话会解析出来注解上的各个参数
-        return logRecordOperationSource.isLogRecordAnnotationExist(targetClass);
+        return logRecordAnnotationParser.isLogRecordAnnotationExist(targetClass);
     }
 
-    void setLogRecordOperationSource(LogRecordOperationSource logRecordOperationSource) {
-        this.logRecordOperationSource = logRecordOperationSource;
+    void setLogRecordAnnotationParser(LogRecordAnnotationParser logRecordAnnotationParser) {
+        this.logRecordAnnotationParser = logRecordAnnotationParser;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.ohyoung.function;
 
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -12,28 +13,29 @@ import java.util.Objects;
  * @author ouyb01
  * @date 2022/1/24 21:29
  */
+@Component
 public class ParseFunctionFactory {
 
-    private Map<String, IParseFunction> allFunctionMap;
+    private Map<String, IParseFunction> functionMap;
 
     public ParseFunctionFactory(List<IParseFunction> parseFunctions) {
         if (CollectionUtils.isEmpty(parseFunctions)) {
             return;
         }
-        allFunctionMap = new HashMap<>();
+        functionMap = new HashMap<>();
         for (IParseFunction parseFunction : parseFunctions) {
             if (StringUtils.hasLength(parseFunction.functionName())) {
-                allFunctionMap.put(parseFunction.functionName(), parseFunction);
+                functionMap.put(parseFunction.functionName(), parseFunction);
             }
         }
     }
 
     public IParseFunction getFunction(String functionName) {
-        return allFunctionMap.get(functionName);
+        return functionMap.get(functionName);
     }
 
     public boolean isBeforeFunction(String functionName) {
-        return Objects.nonNull(allFunctionMap.get(functionName)) && allFunctionMap.get(functionName).executeBefore();
+        return Objects.nonNull(functionMap.get(functionName)) && functionMap.get(functionName).executeBefore();
     }
 
 }

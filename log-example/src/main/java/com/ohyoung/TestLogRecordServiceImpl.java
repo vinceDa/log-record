@@ -1,23 +1,23 @@
-package com.ohyoung.service.impl;
+package com.ohyoung;
 
 import com.ohyoung.entity.LogRecordPO;
 import com.ohyoung.service.ILogRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.logging.LogRecord;
+import org.springframework.stereotype.Component;
 
 /**
  * @author ouyb01
  * @date 2022/1/24 21:49
  */
-public class DefaultLogRecordServiceImpl implements ILogRecordService {
+@Component
+public class TestLogRecordServiceImpl implements ILogRecordService {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultLogRecordServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TestLogRecordServiceImpl.class);
 
     @Override
     public void record(LogRecordPO logRecord) {
-        System.out.println("default handle: " + logRecord.toString());
+        System.out.println("test handle: " + logRecord.toString());
         log.info("【logRecord】log={}", logRecord);
     }
 }
