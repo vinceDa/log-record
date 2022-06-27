@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ouyb01
  * @date 2022/1/11 9:36
  */
-//@Component
 public class LogRecordAnnotationParser {
 
     @Autowired

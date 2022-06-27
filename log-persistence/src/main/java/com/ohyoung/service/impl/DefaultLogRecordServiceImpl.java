@@ -15,7 +15,6 @@ public class DefaultLogRecordServiceImpl implements ILogRecordService {
 
     @Override
     public void record(LogRecordPO logRecord) {
-        System.out.println("default handle: " + logRecord.toString());
-        log.info("【logRecord】log={}", logRecord);
+        log.info("【logRecord】 log={}", logRecord);
     }
 }

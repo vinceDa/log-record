@@ -35,9 +35,9 @@ public class LogRecordProxyAutoConfiguration implements ImportAware {
 
     @Bean
     public LogRecordAnnotationParser logRecordAnnotationParser() {
-        LogRecordAnnotationParser logRecordAnnotationParser = new LogRecordAnnotationParser();
-        logRecordAnnotationParser.setParseFunctionFactory(parseFunctionFactory());
-        return logRecordAnnotationParser;
+        LogRecordAnnotationParser parser = new LogRecordAnnotationParser();
+        parser.setParseFunctionFactory(parseFunctionFactory());
+        return parser;
     }
 
     @Bean

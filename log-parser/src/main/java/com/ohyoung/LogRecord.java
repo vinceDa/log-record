@@ -48,4 +48,6 @@ public @interface LogRecord {
      */
     String condition() default "";
 
+    boolean isSuccess() default true;
+
 }

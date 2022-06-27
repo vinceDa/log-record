@@ -37,7 +37,6 @@ public class LogRecordInterceptor implements MethodInterceptor {
     @Autowired
     private ParseFunctionFactory parseFunctionFactory;
 
-//    @Autowired
     private LogRecordAnnotationParser logRecordAnnotationParser;
 
     private IFunctionService functionService;
@@ -70,7 +69,6 @@ public class LogRecordInterceptor implements MethodInterceptor {
         try {
             // 解析注解将数据存入LogRecordOperation
             operations = logRecordAnnotationParser.computeLogRecordOperations(method, targetClass, args);
-//            List<String> spElTemplates = getBeforeExecuteFunctionTemplate(operations, targetMethodKey);
             // 业务逻辑执行前的自定义函数解析
             executeBeforeFunctionMetaDataList = operations.stream().filter(LogRecordMetaData::getExecuteBefore).collect(Collectors.toList());
             executeAfterFunctionMetaDataList = operations.stream().filter(o -> !o.getExecuteBefore()).collect(Collectors.toList());
@@ -153,20 +151,12 @@ public class LogRecordInterceptor implements MethodInterceptor {
         });
     }
 
-    public void setLogRecordValueParser(LogRecordValueParser logRecordValueParser) {
-        this.logRecordValueParser = logRecordValueParser;
-    }
-
     public void setLogRecordAnnotationParser(LogRecordAnnotationParser logRecordAnnotationParser) {
         this.logRecordAnnotationParser = logRecordAnnotationParser;
     }
 
     public void setFunctionService(IFunctionService functionService) {
         this.functionService = functionService;
-    }
-
-    public void setLogRecordService(ILogRecordService logRecordService) {
-        this.logRecordService = logRecordService;
     }
 
     public void setTenant(String tenant) {

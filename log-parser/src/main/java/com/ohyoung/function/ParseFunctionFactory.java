@@ -1,6 +1,5 @@
 package com.ohyoung.function;
 
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -13,7 +12,6 @@ import java.util.Objects;
  * @author ouyb01
  * @date 2022/1/24 21:29
  */
-//@Component
 public class ParseFunctionFactory {
 
     private Map<String, IParseFunction> functionMap;
