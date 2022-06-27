@@ -1,4 +1,4 @@
-package com.ohyoung;
+package com.ohyoung.example;
 
 import com.ohyoung.entity.LogRecordPO;
 import com.ohyoung.service.ILogRecordService;

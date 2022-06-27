@@ -1,5 +1,6 @@
-package com.ohyoung.function;
+package com.ohyoung.example;
 
+import com.ohyoung.function.IParseFunction;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -9,7 +10,7 @@ import java.lang.reflect.Method;
  * @date 2022/6/23 15:26
  */
 @Component
-public class ManFunction implements IParseFunction{
+public class ManFunction implements IParseFunction {
 
     @Override
     public boolean executeBefore() {

@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  * @date 2022/1/24 21:51
  */
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-@EnableLogRecord(tenant = "com.mzt.test")
+@EnableLogRecord(tenant = "com.ohyoung")
 public class LogStarterApplication {
 
     public static void main(String[] args) {

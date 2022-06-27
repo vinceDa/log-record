@@ -13,7 +13,7 @@ import java.util.Objects;
  * @author ouyb01
  * @date 2022/1/24 21:29
  */
-@Component
+//@Component
 public class ParseFunctionFactory {
 
     private Map<String, IParseFunction> functionMap;

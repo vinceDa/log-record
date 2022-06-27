@@ -5,8 +5,6 @@ import com.ohyoung.service.ILogRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.logging.LogRecord;
-
 /**
  * @author ouyb01
  * @date 2022/1/24 21:49

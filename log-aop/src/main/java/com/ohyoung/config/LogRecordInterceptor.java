@@ -34,13 +34,15 @@ public class LogRecordInterceptor implements MethodInterceptor {
     @Autowired
     private LogRecordValueParser logRecordValueParser;
 
+    @Autowired
     private ParseFunctionFactory parseFunctionFactory;
 
-
+//    @Autowired
     private LogRecordAnnotationParser logRecordAnnotationParser;
 
     private IFunctionService functionService;
 
+    @Autowired
     private ILogRecordService logRecordService;
 
     private String tenant;
@@ -149,6 +151,10 @@ public class LogRecordInterceptor implements MethodInterceptor {
                 evaluationContext.registerFunction(functionName, function.functionMethod());
             }
         });
+    }
+
+    public void setLogRecordValueParser(LogRecordValueParser logRecordValueParser) {
+        this.logRecordValueParser = logRecordValueParser;
     }
 
     public void setLogRecordAnnotationParser(LogRecordAnnotationParser logRecordAnnotationParser) {

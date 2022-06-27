@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ouyb01
  * @date 2022/1/11 9:36
  */
-@Component
+//@Component
 public class LogRecordAnnotationParser {
 
     @Autowired
@@ -105,4 +105,7 @@ public class LogRecordAnnotationParser {
         return functionNames;
     }
 
+    public void setParseFunctionFactory(ParseFunctionFactory parseFunctionFactory) {
+        this.parseFunctionFactory = parseFunctionFactory;
+    }
 }
