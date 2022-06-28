@@ -20,6 +20,7 @@ import org.springframework.context.expression.AnnotatedElementKey;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
 
     private LogRecordAnnotationParser logRecordAnnotationParser;
 
+    @Autowired
     private IFunctionService functionService;
 
     @Autowired
@@ -68,8 +70,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
         logRecordValueParser.setLogRecordEvaluationContext(evaluationContext);
         try {
             // 解析注解将数据存入LogRecordOperation
-            operations = logRecordAnnotationParser.computeLogRecordOperations(method, targetClass, args);
-            // 业务逻辑执行前的自定义函数解析
+            operations = logRecordAnnotationParser.computeLogRecordOperations(targetClass);
             executeBeforeFunctionMetaDataList = operations.stream().filter(LogRecordMetaData::getExecuteBefore).collect(Collectors.toList());
             executeAfterFunctionMetaDataList = operations.stream().filter(o -> !o.getExecuteBefore()).collect(Collectors.toList());
         } catch (Exception e) {
@@ -137,18 +138,20 @@ public class LogRecordInterceptor implements MethodInterceptor {
             if (!operation.isNeedParse()) {
                 continue;
             }
+
             operation.setValue(logRecordValueParser.parse(operation.getValue(), methodKey));
         }
     }
 
     private void registerCustomizeFunction(List<String> functionNames, LogRecordEvaluationContext evaluationContext) {
-        functionNames.forEach(functionName -> {
-            IParseFunction function = parseFunctionFactory.getFunction(functionName);
-
-            if (Objects.nonNull(function)) {
-                evaluationContext.registerFunction(functionName, function.functionMethod());
+        try {
+            for (String functionName : functionNames) {
+                evaluationContext.setVariable(functionName, functionName);
+                evaluationContext.registerFunction(functionName, functionService.getClass().getDeclaredMethod("apply", String.class, String.class));
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setLogRecordAnnotationParser(LogRecordAnnotationParser logRecordAnnotationParser) {

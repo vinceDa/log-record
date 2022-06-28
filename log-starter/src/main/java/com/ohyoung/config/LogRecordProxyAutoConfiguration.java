@@ -1,7 +1,8 @@
 package com.ohyoung.config;
 
 import com.ohyoung.LogRecordAnnotationParser;
-import com.ohyoung.evaluate.LogRecordValueParser;
+import com.ohyoung.function.DefaultFunctionServiceImpl;
+import com.ohyoung.function.IFunctionService;
 import com.ohyoung.function.IParseFunction;
 import com.ohyoung.function.ParseFunctionFactory;
 import com.ohyoung.service.ILogRecordService;
@@ -76,6 +77,12 @@ public class LogRecordProxyAutoConfiguration implements ImportAware {
     @Role(BeanDefinition.ROLE_APPLICATION)
     public ILogRecordService logRecordService() {
         return new DefaultLogRecordServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(IFunctionService.class)
+    public IFunctionService functionService(ParseFunctionFactory parseFunctionFactory) {
+        return new DefaultFunctionServiceImpl(parseFunctionFactory);
     }
 
     /**

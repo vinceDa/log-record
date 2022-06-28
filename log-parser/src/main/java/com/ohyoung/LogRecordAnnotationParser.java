@@ -32,7 +32,7 @@ public class LogRecordAnnotationParser {
         return false;
     }
 
-    public List<LogRecordMetaData> computeLogRecordOperations(Method method, Class<?> targetClass, Object[] args) {
+    public List<LogRecordMetaData> computeLogRecordOperations(Class<?> targetClass) {
         try {
             // 获取@LogRecord中的方法
             Method[] declaredMethods = targetClass.getDeclaredMethods();

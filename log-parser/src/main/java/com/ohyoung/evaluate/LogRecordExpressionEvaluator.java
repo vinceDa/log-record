@@ -1,9 +1,11 @@
 package com.ohyoung.evaluate;
 
+import com.ohyoung.context.LogRecordEvaluationContext;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.context.expression.CachedExpressionEvaluator;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.TypedValue;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +44,10 @@ public class LogRecordExpressionEvaluator extends CachedExpressionEvaluator {
             e.printStackTrace();
         }
         return value;
+    }
+
+    public LogRecordEvaluationContext createEvaluationContext(Method method, Object[] args, Class<?> targetClass, Object ret, String errorMsg) {
+        return new LogRecordEvaluationContext(TypedValue.NULL, method, args, ret, errorMsg);
     }
 
 }

@@ -1,8 +1,10 @@
 package com.ohyoung.context;
 
+import com.sun.deploy.util.Property;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.expression.TypedValue;
 
 import java.lang.reflect.Method;
@@ -16,35 +18,34 @@ public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
     private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
 
+
     public LogRecordEvaluationContext(Method method, Object[] arguments) {
         // 把方法的参数都放到 SpEL 解析的 RootObject 中
-        super(TypedValue.NULL, method, arguments, PARAMETER_NAME_DISCOVERER);
+        //把方法的参数都放到 SpEL 解析的 RootObject 中
+        super(new TypedValue("manDetail"), method, arguments, PARAMETER_NAME_DISCOVERER);
     }
 
-    /**
-     * 把 LogRecordContext 中的变量都放到 RootObject 中 <p>
-     * LogRecord标注的方法执行后，上下文中才可能存在值
-     */
-    public void setContextVariables(){
+    public LogRecordEvaluationContext(Object rootObject, Method method, Object[] arguments, Object ret, String errorMsg) {
+        // 把方法的参数都放到 SpEL 解析的 RootObject 中
+        //把方法的参数都放到 SpEL 解析的 RootObject 中
+        super(rootObject, method, arguments, PARAMETER_NAME_DISCOVERER);
+        //把 LogRecordContext 中的变量都放到 RootObject 中
         Map<String, Object> variables = LogRecordContext.getVariables();
-        for (Map.Entry<String, Object> entry : variables.entrySet()) {
-            setVariable(entry.getKey(), entry.getValue());
+        if (variables != null && variables.size() > 0) {
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                setVariable(entry.getKey(), entry.getValue());
+            }
         }
+        //把方法的返回值和 ErrorMsg 都放到 RootObject 中
+        setVariable("_ret", ret);
+        setVariable("_errorMsg", errorMsg);
     }
 
-    /**
-     * 把方法的返回值和 errMsg 都放到 RootObject 中
-     * LogRecord标注的方法执行后，上下文中才可能存在返回值和错误信息
-     *
-     * @param ret       返回值
-     * @param errMsg    错误信息
-     */
-    public void setRetAndErrMsg(Object ret, String errMsg) {
-        if(ret != null){
-            setVariable("_ret", ret);
-        }
-        if(errMsg != null){
-            setVariable("_errMsg", errMsg);
-        }
+
+    public void setRetAndErrMsg(Object ret, String errorMsg) {
+        //把方法的返回值和 ErrorMsg 都放到 RootObject 中
+        setVariable("_ret", ret);
+        setVariable("_errorMsg", errorMsg);
+
     }
 }
