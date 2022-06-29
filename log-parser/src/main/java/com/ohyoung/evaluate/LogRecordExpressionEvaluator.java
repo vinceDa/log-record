@@ -46,8 +46,8 @@ public class LogRecordExpressionEvaluator extends CachedExpressionEvaluator {
         return value;
     }
 
-    public LogRecordEvaluationContext createEvaluationContext(Method method, Object[] args, Class<?> targetClass, Object ret, String errorMsg) {
-        return new LogRecordEvaluationContext(TypedValue.NULL, method, args, ret, errorMsg);
+    public LogRecordEvaluationContext createEvaluationContext(Object rootObject, Method method, Object[] args, Class<?> targetClass, Object ret, String errorMsg) {
+        return new LogRecordEvaluationContext(rootObject, method, args, ret, errorMsg);
     }
 
 }

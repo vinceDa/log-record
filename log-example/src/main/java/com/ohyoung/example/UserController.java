@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @GetMapping("/getOne")
-    @LogRecord(success = "这是个{#manDetail(#id)}", fail = "{#id}的结果是{#_ret}", bizNo = "bizNo2222", condition = "{#id==1}")
+    @LogRecord(success = "这是个{#manDetail(#id)}, {#name}", fail = "{#id}的结果是{#_ret}", bizNo = "bizNo2222", condition = "{#id==2}")
     public String getOne(Long id, String name) {
-        return 1/0 + "";
+        return "1234";
     }
 }
 

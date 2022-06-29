@@ -35,7 +35,7 @@ public class ManFunction implements IParseFunction {
 
     @Override
     public String apply(String value) {
-        return "apply: 【value : " + value + "姓名: 欧阳帅奔, 家产: 0】";
+        return "apply: 【value : " + value + "姓名: 欧阳帅奔, 家产: 100000000000000000000000】";
     }
 
     static String manDetail(Long id) {

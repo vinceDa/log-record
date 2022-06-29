@@ -8,7 +8,6 @@ import com.ohyoung.context.LogRecordEvaluationContext;
 import com.ohyoung.entity.LogRecordPO;
 import com.ohyoung.evaluate.LogRecordValueParser;
 import com.ohyoung.function.IFunctionService;
-import com.ohyoung.function.IParseFunction;
 import com.ohyoung.function.ParseFunctionFactory;
 import com.ohyoung.service.ILogRecordService;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -20,7 +19,6 @@ import org.springframework.context.expression.AnnotatedElementKey;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,9 +32,6 @@ import static org.springframework.aop.support.AopUtils.getTargetClass;
 public class LogRecordInterceptor implements MethodInterceptor {
     @Autowired
     private LogRecordValueParser logRecordValueParser;
-
-    @Autowired
-    private ParseFunctionFactory parseFunctionFactory;
 
     private LogRecordAnnotationParser logRecordAnnotationParser;
 
@@ -61,13 +56,12 @@ public class LogRecordInterceptor implements MethodInterceptor {
         Class<?> targetClass = getTargetClass(target);
         Object ret = null;
         MethodExecuteResult methodExecuteResult = new MethodExecuteResult();
-//        LogRecordContext.putEmptySpan();
+        LogRecordContext.putEmptySpan();
+        //todo 用于调用自定义函数, 暂时没想好更好的位置
+        LogRecordContext.putVariable("functionService", functionService);
         Collection<LogRecordMetaData> operations = new ArrayList<>();
         List<LogRecordMetaData> executeBeforeFunctionMetaDataList = new ArrayList<>();
         List<LogRecordMetaData> executeAfterFunctionMetaDataList = new ArrayList<>();
-        AnnotatedElementKey targetMethodKey = new AnnotatedElementKey(method, targetClass);
-        LogRecordEvaluationContext evaluationContext = new LogRecordEvaluationContext(method, args);
-        logRecordValueParser.setLogRecordEvaluationContext(evaluationContext);
         try {
             // 解析注解将数据存入LogRecordOperation
             operations = logRecordAnnotationParser.computeLogRecordOperations(targetClass);
@@ -79,7 +73,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
         }
         try {
             // 解析方法执行前的SpEL表达式
-            processFunctionTemplate(evaluationContext, executeBeforeFunctionMetaDataList, targetMethodKey);
+            processFunctionTemplate(executeBeforeFunctionMetaDataList, args, method, targetClass, null, null);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("log record parse before function exception", e);
@@ -92,9 +86,8 @@ public class LogRecordInterceptor implements MethodInterceptor {
             methodExecuteResult = new MethodExecuteResult(false, e, e.getMessage());
         }
         try {
-            evaluationContext.setRetAndErrMsg(ret, methodExecuteResult.getErrorMsg());
             // 解析方法执行后的SpEL表达式
-            processFunctionTemplate(evaluationContext, executeAfterFunctionMetaDataList, targetMethodKey);
+            processFunctionTemplate(executeAfterFunctionMetaDataList, args, method, targetClass, ret, methodExecuteResult.getErrorMsg());
         } catch (Exception e) {
             e.printStackTrace();
             log.error("log record parse after function exception", e);
@@ -128,29 +121,12 @@ public class LogRecordInterceptor implements MethodInterceptor {
 
     /**
      * 解析SpEL表达式并处理其中的自定义函数
-     * @param evaluationContext 上下文参数
-     * @param operations 解析@LogRecord后的元数据集合
      */
-    private void processFunctionTemplate(LogRecordEvaluationContext evaluationContext, Collection<LogRecordMetaData> operations, AnnotatedElementKey methodKey) {
-        // 注册自定义函数
-        operations.forEach(o -> registerCustomizeFunction(o.getFunctionNames(), evaluationContext));
-        for (LogRecordMetaData operation : operations) {
-            if (!operation.isNeedParse()) {
-                continue;
+    private void processFunctionTemplate(Collection<LogRecordMetaData> operations, Object[] args, Method method, Class<?> targetClass, Object ret, String errorMsg) {
+        for (LogRecordMetaData logRecordMetaData : operations) {
+            if (logRecordMetaData.isNeedParse()) {
+                logRecordMetaData.setValue(logRecordValueParser.parse(logRecordMetaData.getValue(), args, method, targetClass, ret, errorMsg));
             }
-
-            operation.setValue(logRecordValueParser.parse(operation.getValue(), methodKey));
-        }
-    }
-
-    private void registerCustomizeFunction(List<String> functionNames, LogRecordEvaluationContext evaluationContext) {
-        try {
-            for (String functionName : functionNames) {
-                evaluationContext.setVariable(functionName, functionName);
-                evaluationContext.registerFunction(functionName, functionService.getClass().getDeclaredMethod("apply", String.class, String.class));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

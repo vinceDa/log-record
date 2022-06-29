@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.MethodResolver;
+import org.springframework.expression.TypedValue;
+import org.springframework.expression.spel.support.ReflectiveMethodResolver;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -22,8 +24,7 @@ import java.util.List;
 @Component
 public class LogRecordValueParser {
 
-    private LogRecordEvaluationContext logRecordEvaluationContext;
-
+    @Autowired
     private IFunctionService functionService;
     @Autowired
     private LogRecordExpressionEvaluator expressionEvaluator;
@@ -31,13 +32,8 @@ public class LogRecordValueParser {
     public String parse(String expression, Object[] args, Method method, Class<?> targetClass, Object ret, String errorMsg) {
         try {
             AnnotatedElementKey methodKey = new AnnotatedElementKey(method, targetClass);
-            LogRecordEvaluationContext evaluationContext = expressionEvaluator.createEvaluationContext(method, args, targetClass, ret, errorMsg);
-            List<String> functionNames = listFunctionInAnnotation(expression);
-            for (String functionName : functionNames) {
-                evaluationContext.registerFunction(functionName, functionService.getClass().getDeclaredMethod("apply", String.class, String.class));
-                evaluationContext.setVariable(functionName, functionName);
-            }
-            return expressionEvaluator.parseExpression(expression, methodKey, evaluationContext);
+            LogRecordEvaluationContext evaluationContext = expressionEvaluator.createEvaluationContext(null, method, args, targetClass, ret, errorMsg);
+            return expressionEvaluator.parseExpression(handleCustomFunction(expression), methodKey, evaluationContext);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,31 +42,29 @@ public class LogRecordValueParser {
     }
 
 
-
-    private List<String> listFunctionInAnnotation(String template) {
-        if (template.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<String> functionNames = new ArrayList<>();
+    /**
+     * 处理自定义函数为可执行的函数
+     * 例如{#getById(#id) #getByName(#name)} -> {#functionService.apply('getById', #id) #functionService.apply('getByName', #name)}
+     *  todo 后续需要做容错处理, 即不符合规则的表达式直接不解析
+     */
+    private static String handleCustomFunction(String template) {
         int start = 0;
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < template.length(); i++) {
-            if (template.charAt(i) == '#') {
+            char c = template.charAt(i);
+            if (c == '#') {
                 start = i;
-            }
-            if (template.charAt(i) == '(') {
-                functionNames.add(template.substring(start + 1, i));
+                sb.append(c);
+            } else if (c == '(') {
+                String functionName = template.substring(start + 1, i);
+                int index = sb.lastIndexOf(functionName);
+                sb.replace(index, sb.toString().length(), "functionService.apply");
+                sb.append("('").append(functionName).append("', ");
+            } else {
+                sb.append(c);
             }
         }
-        return functionNames;
-    }
-
-    public String parse(String expression, AnnotatedElementKey methodKey) {
-        return expressionEvaluator.parseExpression(expression, methodKey, logRecordEvaluationContext);
-    }
-
-
-    public void setLogRecordEvaluationContext(LogRecordEvaluationContext logRecordEvaluationContext) {
-        this.logRecordEvaluationContext = logRecordEvaluationContext;
+        return sb.toString();
     }
 
 }

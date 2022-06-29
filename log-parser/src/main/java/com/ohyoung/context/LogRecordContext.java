@@ -38,7 +38,7 @@ public class LogRecordContext {
     /**
      * 入栈一个 map。在 @LogRecord 嵌套使用时，即将入栈的 map 包含栈顶 map 的数据。
      */
-    public static void putSpan() {
+    public static void putEmptySpan() {
         if (VARIABLE_MAP_STACK.get().isEmpty()) {
             VARIABLE_MAP_STACK.get().push(new HashMap<>());
         } else {
@@ -48,7 +48,13 @@ public class LogRecordContext {
         }
     }
 
-    public static void setVariables(Map<String, Object> variables) {
+    public static void putVariable(String key, Object value) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        VARIABLE_MAP_STACK.get().push(map);
+    }
+
+    public static void putVariables(Map<String, Object> variables) {
         VARIABLE_MAP_STACK.get().push(variables);
     }
 

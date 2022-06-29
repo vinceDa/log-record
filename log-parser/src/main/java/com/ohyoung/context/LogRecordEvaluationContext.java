@@ -3,6 +3,7 @@ package com.ohyoung.context;
 import com.sun.deploy.util.Property;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.expression.TypedValue;
@@ -20,8 +21,8 @@ public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
 
     public LogRecordEvaluationContext(Method method, Object[] arguments) {
+
         // 把方法的参数都放到 SpEL 解析的 RootObject 中
-        //把方法的参数都放到 SpEL 解析的 RootObject 中
         super(new TypedValue("manDetail"), method, arguments, PARAMETER_NAME_DISCOVERER);
     }
 
@@ -39,13 +40,5 @@ public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
         //把方法的返回值和 ErrorMsg 都放到 RootObject 中
         setVariable("_ret", ret);
         setVariable("_errorMsg", errorMsg);
-    }
-
-
-    public void setRetAndErrMsg(Object ret, String errorMsg) {
-        //把方法的返回值和 ErrorMsg 都放到 RootObject 中
-        setVariable("_ret", ret);
-        setVariable("_errorMsg", errorMsg);
-
     }
 }
