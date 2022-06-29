@@ -47,14 +47,18 @@ public class LogRecordAnnotationParser {
                     if (Objects.isNull(logRecord)) {
                         return new ArrayList<>();
                     }
-                    if (Objects.nonNull(LOG_RECORD_CACHE.get(logRecord))) {
-                        operations.addAll(LOG_RECORD_CACHE.get(logRecord));
-                    } else {
-                        // 解析注解上对应的信息
-                        List<LogRecordMetaData> metaDataList = parseAnnotation(logRecord);
-                        operations.addAll(metaDataList);
-                        LOG_RECORD_CACHE.put(logRecord, metaDataList);
-                    }
+                    // 解析注解上对应的信息
+                    List<LogRecordMetaData> metaDataList = parseAnnotation(logRecord);
+                    operations.addAll(metaDataList);
+                    LOG_RECORD_CACHE.put(logRecord, metaDataList);
+//                    if (Objects.nonNull(LOG_RECORD_CACHE.get(logRecord))) {
+//                        operations.addAll(LOG_RECORD_CACHE.get(logRecord));
+//                    } else {
+//                        // 解析注解上对应的信息
+//                        List<LogRecordMetaData> metaDataList = parseAnnotation(logRecord);
+//                        operations.addAll(metaDataList);
+//                        LOG_RECORD_CACHE.put(logRecord, metaDataList);
+//                    }
                 }
             }
             return operations;
