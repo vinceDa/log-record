@@ -25,6 +25,22 @@ log-record提供的能力包括但不限于：
 
 ## 快速开始
 
+1. git clone https://github.com/vinceDa/log-record.git
+
+2. mvn clean install
+
+3. maven依赖
+
+   ```xml
+   <dependency>
+       <groupId>com.ohyoung</groupId>
+       <artifactId>log-starter</artifactId>
+       <version>0.0.1-SNAPSHOT</version>
+   </dependency>
+   ```
+
+   
+
 示例代码如下：
 
 ```java
