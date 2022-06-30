@@ -14,7 +14,7 @@ public class DefaultLogRecordServiceImpl implements ILogRecordService {
     private static final Logger log = LoggerFactory.getLogger(DefaultLogRecordServiceImpl.class);
 
     @Override
-    public void record(LogRecordPO logRecord) {
+    public void record(LogRecordPO logRecord, boolean isSuccess) {
         log.info("【logRecord】 log={}", logRecord);
     }
 }

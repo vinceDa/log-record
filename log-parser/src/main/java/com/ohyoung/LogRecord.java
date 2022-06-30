@@ -3,7 +3,7 @@ package com.ohyoung;
 import java.lang.annotation.*;
 
 /**
- * 拦截器，针对 @LogRecord 注解分析出需要记录的操作日志，然后把操作日志持久化
+ * 操作日志注解定义
  *
  * @author ouyb01
  * @date 2022/1/10 11:37
@@ -47,7 +47,5 @@ public @interface LogRecord {
      * 记录日志的条件
      */
     String condition() default "";
-
-    boolean isSuccess() default true;
 
 }

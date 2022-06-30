@@ -1,7 +1,5 @@
 package com.ohyoung.function;
 
-import org.springframework.beans.factory.BeanFactory;
-
 import java.util.Objects;
 
 /**

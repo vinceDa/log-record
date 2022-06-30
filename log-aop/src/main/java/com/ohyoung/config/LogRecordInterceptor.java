@@ -64,7 +64,7 @@ public class LogRecordInterceptor implements MethodInterceptor {
         List<LogRecordMetaData> executeAfterFunctionMetaDataList = new ArrayList<>();
         try {
             // 解析注解将数据存入LogRecordOperation
-            operations = logRecordAnnotationParser.computeLogRecordOperations(targetClass);
+            operations = logRecordAnnotationParser.computeLogRecordOperations(method, targetClass);
             executeBeforeFunctionMetaDataList = operations.stream().filter(LogRecordMetaData::getExecuteBefore).collect(Collectors.toList());
             executeAfterFunctionMetaDataList = operations.stream().filter(o -> !o.getExecuteBefore()).collect(Collectors.toList());
         } catch (Exception e) {
@@ -103,8 +103,12 @@ public class LogRecordInterceptor implements MethodInterceptor {
                 field.setAccessible(true);
                 field.set(logRecordPO, operationMetaData.getValue());
             }
-            if (!"false".equals(logRecordPO.getCondition())) {
-                logRecordService.record(logRecordPO);
+            String condition = logRecordPO.getCondition();
+            if (Objects.nonNull(condition) && !condition.isEmpty() && !"false".equals(condition) && !"true".equals(condition)) {
+                log.warn("condition is error");
+            }
+            if (Objects.isNull(condition) || condition.isEmpty() || "true".equals(condition)) {
+                logRecordService.record(logRecordPO, methodExecuteResult.isSuccess());
             }
         } catch (Exception t) {
             t.printStackTrace();

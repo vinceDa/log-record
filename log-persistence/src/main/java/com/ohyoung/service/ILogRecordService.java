@@ -8,6 +8,6 @@ import com.ohyoung.entity.LogRecordPO;
  */
 public interface ILogRecordService {
 
-    void record(LogRecordPO logRecord);
+    void record(LogRecordPO logRecord, boolean isSuccess);
 
 }

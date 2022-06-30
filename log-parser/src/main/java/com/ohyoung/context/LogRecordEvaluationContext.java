@@ -3,6 +3,7 @@ package com.ohyoung.context;
 import com.sun.deploy.util.Property;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.convert.TypeDescriptor;
@@ -17,7 +18,7 @@ import java.util.Map;
  */
 public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
-    private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
+    private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
 
     public LogRecordEvaluationContext(Method method, Object[] arguments) {

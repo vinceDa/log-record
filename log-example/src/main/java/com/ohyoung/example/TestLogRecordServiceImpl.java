@@ -16,8 +16,7 @@ public class TestLogRecordServiceImpl implements ILogRecordService {
     private static final Logger log = LoggerFactory.getLogger(TestLogRecordServiceImpl.class);
 
     @Override
-    public void record(LogRecordPO logRecord) {
-        System.out.println("test handle: " + logRecord.toString());
-        log.info("【logRecord】log={}", logRecord);
+    public void record(LogRecordPO logRecord, boolean isSuccess) {
+        log.info("【logRecord custom implement】log={}", logRecord);
     }
 }

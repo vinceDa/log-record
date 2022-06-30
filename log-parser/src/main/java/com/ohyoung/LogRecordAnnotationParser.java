@@ -2,12 +2,12 @@ package com.ohyoung;
 
 import com.ohyoung.function.ParseFunctionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 注解解析类
@@ -32,25 +32,23 @@ public class LogRecordAnnotationParser {
         return false;
     }
 
-    public List<LogRecordMetaData> computeLogRecordOperations(Class<?> targetClass) {
+    public List<LogRecordMetaData> computeLogRecordOperations(Method method, Class<?> targetClass) {
         try {
-            // 获取@LogRecord中的方法
-            Method[] declaredMethods = targetClass.getDeclaredMethods();
+            // 获取当前执行方法上的@LogRecord注解
             List<LogRecordMetaData> operations = new ArrayList<>();
-            for (Method declaredMethod : declaredMethods) {
-                // 过滤掉不含@LogRecord注解的方法
-                boolean isAnnotationExist = declaredMethod.isAnnotationPresent(LogRecord.class);
-                if (isAnnotationExist) {
-                    declaredMethod.setAccessible(true);
-                    // 获取方法上的注解
-                    LogRecord logRecord = declaredMethod.getAnnotation(LogRecord.class);
-                    if (Objects.isNull(logRecord)) {
-                        return new ArrayList<>();
-                    }
-                    // 解析注解上对应的信息
-                    List<LogRecordMetaData> metaDataList = parseAnnotation(logRecord);
-                    operations.addAll(metaDataList);
-                    LOG_RECORD_CACHE.put(logRecord, metaDataList);
+            // 过滤掉不含@LogRecord注解的方法
+            boolean isAnnotationExist = method.isAnnotationPresent(LogRecord.class);
+            if (isAnnotationExist) {
+                method.setAccessible(true);
+                // 获取方法上的注解
+                LogRecord logRecord = method.getAnnotation(LogRecord.class);
+                if (Objects.isNull(logRecord)) {
+                    return new ArrayList<>();
+                }
+                // 解析注解上对应的信息
+                List<LogRecordMetaData> metaDataList = parseAnnotation(logRecord);
+                operations.addAll(metaDataList);
+                LOG_RECORD_CACHE.put(logRecord, metaDataList);
 //                    if (Objects.nonNull(LOG_RECORD_CACHE.get(logRecord))) {
 //                        operations.addAll(LOG_RECORD_CACHE.get(logRecord));
 //                    } else {
@@ -59,7 +57,6 @@ public class LogRecordAnnotationParser {
 //                        operations.addAll(metaDataList);
 //                        LOG_RECORD_CACHE.put(logRecord, metaDataList);
 //                    }
-                }
             }
             return operations;
         } catch (Exception e) {
@@ -79,6 +76,7 @@ public class LogRecordAnnotationParser {
         operations.add(new LogRecordMetaData("category", logRecord.category()));
         operations.add(new LogRecordMetaData("detail", logRecord.detail()));
         operations.add(new LogRecordMetaData("condition", logRecord.condition()));
+        operations = operations.stream().filter(o -> !o.getValue().isEmpty()).collect(Collectors.toList());
         // 解析表达式中所有的自定义函数
         for (LogRecordMetaData operation : operations) {
             operation.setFunctionNames(listFunctionInAnnotation(operation.getValue()));
