@@ -1,22 +1,11 @@
 package com.ohyoung.evaluate;
 
-import com.ohyoung.context.LogRecordContext;
 import com.ohyoung.context.LogRecordEvaluationContext;
-import com.ohyoung.function.IFunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.expression.AnnotatedElementKey;
-import org.springframework.context.expression.MapAccessor;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.MethodResolver;
-import org.springframework.expression.TypedValue;
-import org.springframework.expression.spel.support.ReflectiveMethodResolver;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * @author ouyb01
@@ -39,29 +28,6 @@ public class LogRecordValueParser {
         }
         return null;
     }
-
-//    private Object getRootObject(Method method, Class<?> targetClass) {
-//        LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
-//        String[] params = discoverer.getParameterNames(method);
-//        if (params.length != 1) {
-//            return null;
-//        }
-//
-//        if ((method.getName().startsWith("get")) && (method.getName().length() == (field.getName().length() + 3))) {
-//            if (method.getName().toLowerCase().endsWith(field.getName().toLowerCase())) {
-//                // MZ: Method found, run it
-//                try {
-//                    return method.invoke(o);
-//                } catch (IllegalAccessException e) {
-//                    Logger.fatal("Could not determine method: " + method.getName());
-//                } catch (InvocationTargetException e) {
-//                    Logger.fatal("Could not determine method: " + method.getName());
-//                }
-//
-//            }
-//        }
-//    }
-
 
     /**
      * 处理自定义函数为可执行的函数

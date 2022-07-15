@@ -1,13 +1,7 @@
 package com.ohyoung.context;
 
-import com.sun.deploy.util.Property;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
-import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.core.MethodParameter;
-import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.expression.TypedValue;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -20,12 +14,6 @@ public class LogRecordEvaluationContext extends MethodBasedEvaluationContext {
 
     private static final LocalVariableTableParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new LocalVariableTableParameterNameDiscoverer();
 
-
-    public LogRecordEvaluationContext(Method method, Object[] arguments) {
-
-        // 把方法的参数都放到 SpEL 解析的 RootObject 中
-        super(new TypedValue("manDetail"), method, arguments, PARAMETER_NAME_DISCOVERER);
-    }
 
     public LogRecordEvaluationContext(Object rootObject, Method method, Object[] arguments, Object ret, String errorMsg) {
         // 把方法的参数都放到 SpEL 解析的 RootObject 中

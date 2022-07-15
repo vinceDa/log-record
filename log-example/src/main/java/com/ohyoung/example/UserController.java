@@ -1,10 +1,7 @@
 package com.ohyoung.example;
 
 import com.ohyoung.LogRecord;
-import com.ohyoung.Operator;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * @author ouyb01
